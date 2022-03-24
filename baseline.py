@@ -14,10 +14,26 @@ def originalXy(as_numpy=False):
         X = X.to_numpy()
     return X, y
 
+def origtestX(as_numpy=False):
+    train = pd.read_csv('data/Test.csv')
+    original_columns = list(train.columns)[1:]
+    X = train[original_columns]
+
+    if as_numpy:
+        X = X.to_numpy()
+    return X
+
 from sklearn.preprocessing import normalize
 
 def baselineXy(as_numpy=False):
     X, y = originalXy()
+    return getX(X), y
+
+def testX(as_numpy=False):
+    X = origtestX()
+    return getX(X)
+
+def getX(X, as_numpy=False):
     original_columns = list(X.columns)
     def most_freq(df, col):
         matrix = df[dfcols.all_square_cols(col)].to_numpy()
@@ -61,4 +77,4 @@ def baselineXy(as_numpy=False):
     if as_numpy:
         X = X.to_numpy()
 
-    return X, y
+    return X

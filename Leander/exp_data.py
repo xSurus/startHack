@@ -1,24 +1,47 @@
-import numpy as np
+# Import libraries
 import pandas as pd
-from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import f1_score
-
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import StackingClassifier
+from sklearn.ensemble import ExtraTreesClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.datasets import load_iris
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.svm import LinearSVC
+from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import make_pipeline
+from sklearn.ensemble import StackingClassifier
+from sklearn.svm import SVC
+from sklearn.neural_network import MLPClassifier
 pd.set_option('display.max_columns', None)
-df = pd.read_csv('../Data/Train.csv')
-df_train = df.drop(labels=["Sample_ID","Label"], axis=1)[df.columns.drop(list(df.filter(regex='geology')))]
-y_train = df[["Label"]]
-df_train_t8 = df_train.head(800)
-y_train_t8 = y_train.head(800)
-Xtr = df_train_t8.to_numpy()
-ytr = y_train_t8.to_numpy()
+import warnings
+warnings.filterwarnings('ignore')
 
-df_train_l2 = df_train.tail(200)
-y_train_l2 = df_train.tail(200)
-Xte = df_train_l2.to_numpy()
-yte = y_train_l2.to_numpy()
+# Read files to pandas dataframes
+train = pd.read_csv('../data/Train.csv')
+test = pd.read_csv('../data/Test.csv')
+sample_submission = pd.read_csv('../data/SampleSubmission.csv')
 
-#clf_LR = LogisticRegression().fit(Xtr,ytr)
-#y_pred = clf_LR.predict(Xte)
-#f1_LR = f1_score(y_pred, yte)
-#print(f1_LR)
-print(Xtr.shape())
+main_cols = train.columns.difference(['Sample_ID', 'Label'])
+X = train[main_cols]
+y = train.Label
+
+# Split data into train and test sets
+X_train, X_test, y_train, y_test = train_test_split(X,y,test_size=0.3, random_state=2022)
+estimators = [
+    ('mlp', MLPClassifier(alpha=0.5)),
+    ('rf', RandomForestClassifier(n_estimators=500, random_state=42)),
+    ('svr', make_pipeline(StandardScaler(), SVC(gamma='auto', random_state=42)))
+]
+# Train model
+model = StackingClassifier(
+    estimators=estimators, final_estimator=LogisticRegression()
+)
+model.fit(X_train, y_train)
+
+# Make predictions
+y_pred = model.predict(X_test)
+
+# Check the auc score of the model
+print(f'RandomForest F1 score on the X_test is: {f1_score(y_test, y_pred)}\n')

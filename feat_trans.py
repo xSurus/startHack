@@ -16,3 +16,7 @@ def mean(df: pd.DataFrame, col_name: str):
 def std(df: pd.DataFrame, col_name: str):
     matrix = df[all_square_cols(col_name)].to_numpy()
     return matrix.std(axis=1)
+
+from sklearn.preprocessing import normalize
+def normalize(df: pd.DataFrame, col_name: str):
+    return normalize(df[[col_name]].to_numpy(), axis=0)

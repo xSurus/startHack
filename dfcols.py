@@ -1,5 +1,5 @@
 def square_col(col_name: str, square_i: int):
-    return f"{i}_{col_name}"
+    return f"{square_i}_{col_name}"
 
 import re
 def grid_col(sqcol_name: str):
